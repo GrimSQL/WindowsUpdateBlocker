@@ -16,31 +16,31 @@ public class DarkMode {
 $xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Windows Update Blocker" Height="420" Width="480"
+        Title="Windows Update Blocker" Height="480" Width="500"
         WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize"
         Background="#181716">
     <Window.Resources>
-        <Style x:Key="DarkButton" TargetType="Button">
-            <Setter Property="Background" Value="#2d2c2a"/>
-            <Setter Property="Foreground" Value="#E0E0E0"/>
-            <Setter Property="BorderBrush" Value="#3d3c3a"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="20,12"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
+        <SolidColorBrush x:Key="TabBg" Color="#1f1e1c"/>
+        <SolidColorBrush x:Key="TabSelectedBg" Color="#181716"/>
+        <SolidColorBrush x:Key="TextColor" Color="#E0E0E0"/>
+        <SolidColorBrush x:Key="SubTextColor" Color="#888888"/>
+        
+        <Style TargetType="TabItem">
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Border" Background="{StaticResource TabBg}" BorderBrush="#3d3c3a" 
+                                BorderThickness="1,1,1,0" CornerRadius="6,6,0,0" Padding="15,8" Margin="2,0,0,0">
+                            <ContentPresenter ContentSource="Header"/>
                         </Border>
                         <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource TabSelectedBg}"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#4CAF50"/>
+                                <Setter TargetName="Border" Property="BorderThickness" Value="1,2,1,0"/>
+                            </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#3d3c3a"/>
+                                <Setter TargetName="Border" Property="Background" Value="#2d2c2a"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -49,49 +49,97 @@ $xaml = @"
         </Style>
     </Window.Resources>
     
-    <Grid Margin="20">
-        <StackPanel VerticalAlignment="Center">
-            <!-- Title -->
-            <TextBlock Text="Windows Update Blocker" Foreground="#E0E0E0" FontSize="24" FontWeight="Bold" 
-                       HorizontalAlignment="Center" Margin="0,0,0,30"/>
-            
-            <!-- Status Card -->
-            <Border Background="#1f1e1c" CornerRadius="10" Padding="25" Margin="0,0,0,25">
-                <StackPanel>
-                    <TextBlock Text="Current Status" Foreground="#888888" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <Border x:Name="StatusBorder" CornerRadius="8" Padding="20,12" HorizontalAlignment="Center" Background="#1a2a1a">
-                        <StackPanel Orientation="Horizontal">
-                            <Ellipse x:Name="StatusDot" Width="12" Height="12" Margin="0,0,10,0" Fill="#4CAF50"/>
-                            <TextBlock x:Name="StatusText" FontSize="16" FontWeight="Bold" Foreground="#E0E0E0" Text="CHECKING..."/>
+    <TabControl Background="#181716" BorderThickness="0" Margin="0,10,0,0">
+        <!-- Control Tab -->
+        <TabItem>
+            <TabItem.Header>
+                <TextBlock Text="Control" Foreground="{StaticResource TextColor}" FontWeight="SemiBold"/>
+            </TabItem.Header>
+            <Grid Background="#181716">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="30">
+                    
+                    <!-- Status Card -->
+                    <Border Background="#1f1e1c" CornerRadius="10" Padding="25" Margin="0,0,0,25">
+                        <StackPanel>
+                            <TextBlock Text="Current Status" Foreground="#888888" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <Border x:Name="StatusBorder" CornerRadius="8" Padding="20,12" HorizontalAlignment="Center" Background="#1a2a1a">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse x:Name="StatusDot" Width="12" Height="12" Margin="0,0,10,0" Fill="#4CAF50"/>
+                                    <TextBlock x:Name="StatusText" FontSize="16" FontWeight="Bold" Foreground="#E0E0E0" Text="CHECKING..."/>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock x:Name="StatusDescription" Foreground="#888888" FontSize="11" HorizontalAlignment="Center" 
+                                       Margin="0,12,0,0" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="300"/>
                         </StackPanel>
                     </Border>
-                    <TextBlock x:Name="StatusDescription" Foreground="#888888" FontSize="11" HorizontalAlignment="Center" 
-                               Margin="0,12,0,0" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="300"/>
+                    
+                    <!-- Buttons -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Button x:Name="PauseBtn" Grid.Column="0" Content="PAUSE UPDATES" Height="50"/>
+                        <Button x:Name="ResumeBtn" Grid.Column="2" Content="RESUME UPDATES" Height="50"/>
+                    </Grid>
+                    
+                    <!-- Message -->
+                    <Border x:Name="MessageBorder" Background="#2d2c2a" CornerRadius="6" Padding="15,10" Margin="0,20,0,0" Visibility="Collapsed">
+                        <TextBlock x:Name="MessageText" Foreground="#E0E0E0" FontSize="12" TextWrapping="Wrap" TextAlignment="Center"/>
+                    </Border>
                 </StackPanel>
-            </Border>
-            
-            <!-- Buttons -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="15"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                
-                <Button x:Name="PauseBtn" Grid.Column="0" Content="PAUSE UPDATES" Height="50" Background="#8B0000" BorderBrush="#A52A2A"/>
-                <Button x:Name="ResumeBtn" Grid.Column="2" Content="RESUME UPDATES" Height="50" Background="#2E7D32" BorderBrush="#388E3C"/>
             </Grid>
-            
-            <!-- Message -->
-            <Border x:Name="MessageBorder" Background="#2d2c2a" CornerRadius="6" Padding="15,10" Margin="0,20,0,0" Visibility="Collapsed">
-                <TextBlock x:Name="MessageText" Foreground="#E0E0E0" FontSize="12" TextWrapping="Wrap" TextAlignment="Center"/>
-            </Border>
-            
-            <!-- About -->
-            <TextBlock Text="v1.0 - Modifies Windows Update registry settings" Foreground="#555555" FontSize="10" 
-                       HorizontalAlignment="Center" Margin="0,25,0,0"/>
-        </StackPanel>
-    </Grid>
+        </TabItem>
+        
+        <!-- About Tab -->
+        <TabItem>
+            <TabItem.Header>
+                <TextBlock Text="About" Foreground="{StaticResource TextColor}" FontWeight="SemiBold"/>
+            </TabItem.Header>
+            <Grid Background="#181716">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="30">
+                        <Border Background="#1f1e1c" CornerRadius="10" Padding="30">
+                            <StackPanel>
+                                <!-- App Logo -->
+                                <Border Background="#2E7D32" CornerRadius="25" Width="50" Height="50" HorizontalAlignment="Center" Margin="0,0,0,15">
+                                    <TextBlock Text="S" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                
+                                <!-- App Name -->
+                                <TextBlock Text="Windows Update Blocker" Foreground="#E0E0E0" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                
+                                <!-- Version -->
+                                <TextBlock Text="Version 1.0.0" Foreground="#888888" FontSize="12" HorizontalAlignment="Center" Margin="0,5,0,20"/>
+                                
+                                <Border Background="#3d3c3a" Height="1" Margin="0,0,0,20"/>
+                                
+                                <!-- Description -->
+                                <TextBlock Foreground="#AAAAAA" FontSize="13" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="350" LineHeight="22">
+                                    A simple utility to pause or resume Windows Updates by modifying registry settings. Updates can be paused indefinitely until you choose to resume them.
+                                </TextBlock>
+                                
+                                <Border Background="#3d3c3a" Height="1" Margin="0,20"/>
+                                
+                                <!-- How it works -->
+                                <TextBlock Text="How it works:" Foreground="#E0E0E0" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                
+                                <TextBlock Foreground="#888888" FontSize="12" TextWrapping="Wrap" MaxWidth="350" LineHeight="20" Text=" Pause: Sets update pause dates to year 2099&#x0a; Resume: Removes the pause registry entries&#x0a; Requires Administrator privileges&#x0a; Modifies: HKLM\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings"/>
+                                
+                                <Border Background="#3d3c3a" Height="1" Margin="0,20"/>
+                                
+                                <!-- Footer -->
+                                <TextBlock Text="2026 - Use at your own risk" Foreground="#666666" FontSize="11" HorizontalAlignment="Center"/>
+                                <TextBlock Text="github.com/GrimSQL/WindowsUpdateBlocker" Foreground="#4CAF50" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </TabItem>
+    </TabControl>
 </Window>
 "@
 
@@ -108,7 +156,7 @@ $ResumeBtn = $window.FindName("ResumeBtn")
 $MessageBorder = $window.FindName("MessageBorder")
 $MessageText = $window.FindName("MessageText")
 
-# Apply button styles
+# Style buttons
 foreach ($btn in @($PauseBtn, $ResumeBtn)) {
     $btn.Foreground = [System.Windows.Media.Brushes]::White
     $btn.FontSize = 14
@@ -116,6 +164,10 @@ foreach ($btn in @($PauseBtn, $ResumeBtn)) {
     $btn.BorderThickness = [System.Windows.Thickness]::new(1)
     $btn.Cursor = [System.Windows.Input.Cursors]::Hand
 }
+$PauseBtn.Background = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(139,0,0))
+$PauseBtn.BorderBrush = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(165,42,42))
+$ResumeBtn.Background = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(46,125,50))
+$ResumeBtn.BorderBrush = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(56,142,60))
 
 $RegistryPath = "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings"
 
@@ -130,7 +182,7 @@ function Update-Status {
     $isPaused = Test-UpdatesPaused
     if ($isPaused) {
         $StatusText.Text = "UPDATES PAUSED"
-        $StatusDot.Fill = [System.Windows.Media.Brushes]::Red
+        $StatusDot.Fill = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(244,67,54))
         $StatusBorder.Background = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(42,26,26))
         $StatusDescription.Text = "Windows Updates are currently blocked.`nYour system will not download or install updates."
         $PauseBtn.Opacity = 0.6
