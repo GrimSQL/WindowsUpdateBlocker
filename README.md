@@ -1,4 +1,4 @@
-﻿# Windows Update Blocker
+# Windows Update Blocker
 
 A lightweight (42 KB) dark-mode utility to pause or resume Windows Updates.
 
